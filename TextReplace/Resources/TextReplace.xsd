@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml" xmlns:wix="http://schemas.microsoft.com/wix/2006/wi" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xse="http://schemas.microsoft.com/wix/2005/XmlSchemaExtension" targetNamespace="http://schemas.rottedfrog.co.uk/wix/TextReplace" xmlns="http://schemas.rottedfrog.co.uk/wix/TextReplace">
+  <xs:element name="TextReplace">
+    <xs:annotation>
+      <xs:documentation>
+        Find and replace text in files using regular expressions
+      </xs:documentation>
+      <xs:appinfo>
+        <xse:parent namespace="http://schemas.microsoft.com/wix/2006/wi" ref="Component" />
+        <xse:parent namespace="http://schemas.microsoft.com/wix/2006/wi" ref="ComponentRef" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="Id" use="required" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Identifier for the text replace operation</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="Match" use="required" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The regular expression to search for in the file. By default this is a literal regular expression in
+            ECMAScript regular expression syntax. If you wish to use it as an msi formatted value, then add a prefix
+            of [@@] to the expression. Note that when using it formatted, common regex characters such as [ and \ must
+            be escaped.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="Replace" use="required" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>The replacement expression. By default this is a literal replacement expression in 
+          ECMAScript regular expression syntax. If you wish to use it as an msi formatted value, then add a prefix 
+          of [@@] to the expression. Note that when using it formatted, common regex characters such as [ and \ must 
+          be escaped.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="File" use="required" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Path of the file to to find.replace in. This is a formatted field.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

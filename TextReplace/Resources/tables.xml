@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tableDefinitions xmlns="http://schemas.microsoft.com/wix/2006/tables">
+  <tableDefinition name="TextReplace">
+    <columnDefinition name="Id" type="string" length="72" primaryKey="yes" modularize="column"
+            category="identifier" description="Primary key, non-localized token in table."/>
+    <columnDefinition name="Component_" type="string" length="72" modularize="column"
+            category="identifier" description="Component Matching this value."/>
+    <columnDefinition name="File" type="localized" length="255" modularize="none"
+            category="formatted" description="Name of file to look in."/>
+    <columnDefinition name="MatchExpr" type="localized" length="255" modularize="none"
+            category="formatted" description="Regular expression to find in the file."/>
+    <columnDefinition name="ReplaceExpr" type="localized" length="255" modularize="none"
+            category="formatted" description="Replacement expression."/>
+  </tableDefinition>
+</tableDefinitions>
