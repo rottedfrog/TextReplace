@@ -69,12 +69,12 @@ public:
 	void LogLastDllError(const wchar_t *function);
 	void LogLastMsiError(const wchar_t *function);
 	MsiView OpenView(const wchar_t *query);
-	void MsiErr(unsigned int errorcode, std::wstring &context);
+	void MsiErr(unsigned int errorcode, const std::wstring &context) const;
 	bool GetMode(MSIRUNMODE mode)
 	{
 		return MsiGetMode(_hInstall, mode) != 0;
 	}
-
+  std::wstring EvaluateFormattedString(const std::wstring &str);
 	void ExecuteQuery(const wchar_t *query);
 	bool EvaluateCondition(const wchar_t *condition);
 };
@@ -140,14 +140,26 @@ public:
 		: _session(session), _record(record), _index(index)
 	{ }
 
-	std::wstring errorcontext(const wchar_t *function);
+	int operator=(int value)
+	{
+		SetInt(value);
+		return value;
+	}
 
-	unsigned int Size()
+	const std::wstring &operator=(const std::wstring &value)
+	{
+		SetString(value.c_str());
+		return value;
+	}
+
+	std::wstring errorcontext(const wchar_t *function) const;
+
+	unsigned int Size() const
 	{
 		return MsiRecordDataSize(_record.hRecord(), _index);
 	}
 
-	bool IsNull(int value)
+	bool IsNull() const
 	{
 		return (MsiRecordIsNull(_record.hRecord(), _index) != 0);
 	}
@@ -157,28 +169,28 @@ public:
 		_session.MsiErr(MsiRecordSetInteger(_record.hRecord(), _index, value), errorcontext(__FUNCTIONW__));
 	}
 
-	void SetString(wchar_t *value)
+	void SetString(const wchar_t *value)
 	{
 		_session.MsiErr(MsiRecordSetString(_record.hRecord(), _index, value), errorcontext(__FUNCTIONW__));
 	}
 
-	void SetStream(wchar_t *value)
+	void SetStream(const wchar_t *value)
 	{
 		_session.MsiErr(MsiRecordSetStream(_record.hRecord(), _index, value), errorcontext(__FUNCTIONW__));
 	}
 
-	void GetStream(wchar_t *value, BYTE *buffer, unsigned int bufsiz)
+	void GetStream(BYTE *buffer, unsigned int bufsiz) const
 	{
 		_session.MsiErr(MsiRecordReadStream(_record.hRecord(), _index, (char *)buffer, (LPDWORD)&bufsiz), errorcontext(__FUNCTIONW__));
 	}
 
-	int GetInt()
+	int GetInt() const
 	{
 		return MsiRecordGetInteger(_record.hRecord(), _index);
 	}
 
-	std::wstring GetString();
-	std::wstring GetFormattedString();
+	std::wstring GetString() const;
+	std::wstring GetFormattedString() const;
 };
 
 class MsiViewIterator : public std::iterator<std::forward_iterator_tag, MsiRecord>
@@ -271,7 +283,7 @@ public:
 			MsiViewClose(view);
 		}
 	}
-
+	
 	MsiViewIterator begin()
 	{
 		return MsiViewIterator(_session, OpenView(), *this);
@@ -281,6 +293,30 @@ public:
 	{
 		return MsiViewIterator(_session, *this);
 	}
+};
+
+
+
+//Useful for serializing tables into properties for use in deferred custom actions
+class MsiViewEncoder
+{
+private:
+  const unsigned long long _formatMap;
+  
+  void SerializeRecord(MsiRecord &rec, std::wstringstream &stream) const;
+public:
+  template<typename Predicate> //Ideally this would be replaced by std::function<bool, const MsiRecord &> as the parameter type, once VS supports expression SFINAE
+  std::wstring MsiViewEncoder::Encode(MsiView &view, Predicate filterPredicate) const
+  {
+    wstringstream result;
+    for_each(begin(view), end(view), [&](MsiRecord &rec) { if (filterPredicate(rec)) SerializeRecord(rec, result); });
+    return result.str();
+  }
+
+  std::vector<MsiRecord> Decode(MsiSession &session, std::wstring encodedView) const;
+  MsiViewEncoder(unsigned long long formatMap)
+    : _formatMap(formatMap)
+  { }
 };
 
 class msi_exception
@@ -294,7 +330,7 @@ public:
 	{ }
 
 	msi_exception(const std::wstring &msg)
-		: _number(-1), _msg(msg)
+		: _number(1), _msg(msg)
 	{ }
 
 	const std::wstring &what() const

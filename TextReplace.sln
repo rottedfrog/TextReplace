@@ -4,12 +4,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextReplace", "TextReplace\TextReplace.csproj", "{F9EFC438-052F-435B-AFCF-D667738B8CE1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7ADE6810-0106-49AF-8533-D68631BC3641} = {7ADE6810-0106-49AF-8533-D68631BC3641}
+		{79C14A51-48AC-4BAB-8412-27C259C33336} = {79C14A51-48AC-4BAB-8412-27C259C33336}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextReplaceCA", "TextReplaceCA\TextReplaceCA.vcxproj", "{7ADE6810-0106-49AF-8533-D68631BC3641}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestReplaceCA.Test", "TestReplaceCA.Test\TestReplaceCA.Test.vcxproj", "{46C541FE-CBE5-4085-AC6E-AF3AB9ADA91B}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "TextReplace.Test.Setup", "TextReplace.Test.Setup\TextReplace.Test.Setup.wixproj", "{0FBCBE07-1D37-462B-B324-1C8D7B153E7F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F9EFC438-052F-435B-AFCF-D667738B8CE1} = {F9EFC438-052F-435B-AFCF-D667738B8CE1}
+	EndProjectSection
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "TextReplace.WixLib", "TextReplace.WixLib\TextReplace.WixLib.wixproj", "{79C14A51-48AC-4BAB-8412-27C259C33336}"
 EndProject

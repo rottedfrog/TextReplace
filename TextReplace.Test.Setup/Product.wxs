@@ -7,7 +7,7 @@
 		<MediaTemplate />
 
 		<Feature Id="ProductFeature" Title="TextReplace.Test.Setup" Level="1">
-			<ComponentGroupRef Id="ProductComponents" />
+			<ComponentRef Id="Comp1" />
 		</Feature>
 	</Product>
 
@@ -17,7 +17,7 @@
         <Directory Id="INSTALLFOLDER" Name="TextReplace.Test.Setup">
           <Component Id="Comp1">
             <File Id="testfile" Source="Testfile.txt" />
-            <tx:TextReplace Id="text1" File="[#testfile]" Match="Hello " Replace="$1$1" />            
+            <tx:TextReplace Id="text1" File="[#testfile]" Match="Hello " Replace="$1$1" />
           </Component>
         </Directory>
 			</Directory>

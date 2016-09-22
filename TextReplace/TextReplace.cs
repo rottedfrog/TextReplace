@@ -10,7 +10,7 @@ namespace TextReplace
         Library _library;
         public override Library GetLibrary(TableDefinitionCollection tableDefinitions)
         {
-            return _library ?? (_library = LoadLibraryHelper(System.Reflection.Assembly.GetExecutingAssembly(), "Wix.XmlSearch.Resources.XmlSearch.wixlib", tableDefinitions));
+            return _library ?? (_library = LoadLibraryHelper(System.Reflection.Assembly.GetExecutingAssembly(), "TextReplace.Resources.TextReplace.WixLib.wixlib", tableDefinitions));
         }
 
         public override TableDefinitionCollection TableDefinitions
@@ -127,7 +127,7 @@ namespace TextReplace
                 r[2] = file;
                 r[3] = SubstituteExpr(matchExpr);
                 r[4] = SubstituteExpr(replaceExpr);
-                Core.CreateWixSimpleReferenceRow(sourceLineNumbers, "CustomAction", "TextReplaceCA");
+                Core.CreateWixSimpleReferenceRow(sourceLineNumbers, "CustomAction", "TextReplace");
             }
         }
     }

@@ -3,4 +3,5 @@ LIBRARY "TextReplaceCA.dll"
 ;Exported Custom Actions
 
 EXPORTS
+  InitTextReplace
   TextReplace

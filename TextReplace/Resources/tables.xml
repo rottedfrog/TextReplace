@@ -7,9 +7,9 @@
             category="identifier" description="Component Matching this value."/>
     <columnDefinition name="File" type="localized" length="255" modularize="none"
             category="formatted" description="Name of file to look in."/>
-    <columnDefinition name="MatchExpr" type="localized" length="255" modularize="none"
+    <columnDefinition name="MatchExpr" type="string" length="255" modularize="none"
             category="formatted" description="Regular expression to find in the file."/>
-    <columnDefinition name="ReplaceExpr" type="localized" length="255" modularize="none"
+    <columnDefinition name="ReplaceExpr" type="string" length="255" modularize="none"
             category="formatted" description="Replacement expression."/>
   </tableDefinition>
 </tableDefinitions>

@@ -3,7 +3,9 @@
   <Fragment>
     <Binary Id="TextReplaceCa" SourceFile="$(var.TextReplaceCA.TargetPath)" />
     <CustomAction Id="TextReplace" BinaryKey="TextReplaceCa" DllEntry="TextReplace" Execute="deferred" Return="check" SuppressModularization="yes" />
+    <CustomAction Id="TextReplaceInitialize" BinaryKey="TextReplaceCa" DllEntry="InitTextReplace" Execute="oncePerProcess" Return="check" SuppressModularization="yes" />
     <InstallExecuteSequence>
+      <Custom Action="TextReplaceInitialize" Before="InstallInitialize" />
       <Custom Action="TextReplace" Before="InstallFinalize" />
     </InstallExecuteSequence>
   </Fragment>

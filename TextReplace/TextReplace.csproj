@@ -53,7 +53,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\TextReplace.WixLib.wixlib" />
+    <EmbeddedResource Include="Resources\TextReplace.WixLib.wixlib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\.gitignore" />

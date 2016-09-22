@@ -1,4 +1,44 @@
+#include <algorithm>
+#include <sstream>
+#include <regex>
+#include <functional>
 #include "msihelper.h"
+
+using namespace std;
+
+wstring MsiSession::EvaluateFormattedString(const wstring &str)
+{
+  wchar_t buffer[1024];
+  DWORD bufferSize = 1024, e;
+
+  if (str.length() == 0)
+  {
+    return str;
+  }
+
+  MSIHANDLE hRecord = MsiCreateRecord(1);
+  e = MsiRecordSetString(hRecord, 0, str.c_str());
+
+  if (e != ERROR_SUCCESS)
+  {
+    MsiErr(e, L"Function: " __FUNCTIONW__);
+    return wstring();
+  }
+
+  e = MsiFormatRecord(_hInstall, hRecord, buffer, &bufferSize);
+  if (e == ERROR_SUCCESS)
+  { return buffer; }
+  if (e == ERROR_MORE_DATA)
+  {
+    unique_ptr<wchar_t[]> bigbuffer(new wchar_t[bufferSize]);
+    e = MsiFormatRecord(_hInstall, hRecord, bigbuffer.get(), &bufferSize);
+    if (e == ERROR_SUCCESS)
+    { return bigbuffer.get(); }
+  }
+  MsiErr(e, L"Function: " __FUNCTIONW__);
+  _ASSERT(FALSE);//should never get here
+  return wstring();
+}
 
 void MsiSession::LogMessage(const wchar_t *function, const wchar_t *message, ...)
 {
@@ -80,40 +120,12 @@ void MsiSession::ExecuteQuery(const wchar_t *query)
 	MsiViewClose(view);
 }
 
-std::wstring MsiField::GetFormattedString()
+std::wstring MsiField::GetFormattedString() const
 {
-	wchar_t *buffer = NULL;
-	unsigned int bufsiz = 0, e;
-
-	auto str = GetString();
-	if (str.length() == 0)
-	{
-		return str;
-	}
-
-	PMSIHANDLE hRecord = MsiCreateRecord(1);
-	if ((e = MsiRecordSetString(hRecord, 0, str.c_str())) != ERROR_SUCCESS)
-	{
-		_session.MsiErr(e, errorcontext(__FUNCTIONW__));
-		return std::wstring();
-	}
-
-	if (ERROR_MORE_DATA == (e = MsiFormatRecord(_session, hRecord, (wchar_t *)&buffer, (LPDWORD)&bufsiz)))
-	{
-		buffer = new wchar_t[++bufsiz];
-		e = MsiFormatRecord(_session, hRecord, buffer, (LPDWORD)&bufsiz);
-		std::wstring s(buffer);
-		delete[] buffer;
-		return s;
-	}
-	else
-	{
-		_session.MsiErr(e, errorcontext(__FUNCTIONW__));
-		return std::wstring();
-	}
+  return _session.EvaluateFormattedString(GetString());
 }
 
-std::wstring MsiField::GetString()
+std::wstring MsiField::GetString() const
 {
 	wchar_t *buffer = NULL;
 	unsigned int bufsiz = 0, e;
@@ -132,7 +144,7 @@ std::wstring MsiField::GetString()
 	}
 }
 
-void MsiSession::MsiErr(unsigned int errorcode, std::wstring &context)
+void MsiSession::MsiErr(unsigned int errorcode, const std::wstring &context) const
 {
 	switch (errorcode)
 	{
@@ -158,7 +170,7 @@ void MsiSession::MsiErr(unsigned int errorcode, std::wstring &context)
 	}
 }
 
-std::wstring MsiField::errorcontext(const wchar_t *function)
+std::wstring MsiField::errorcontext(const wchar_t *function) const
 {
 	std::wostringstream str;
 	str << L"Field Index: " << _index << L"\n"
@@ -222,4 +234,103 @@ MsiProperties::Property::operator std::wstring()
 	std::vector<wchar_t> buffer(++bufsiz);
 	_session.MsiErr(MsiGetProperty(_session, _name.c_str(), &buffer[0], &bufsiz), errorcontext(__FUNCTIONW__));
 	return std::wstring(&buffer[0]);
+}
+
+wstring EscapeString(const wstring & str)
+{
+  return regex_replace(str, wregex(L"\\\\|\""), L"\\$&");
+}
+
+void MsiViewEncoder::SerializeRecord(MsiRecord &rec, wstringstream &stream) const
+{
+  stream << L"[";
+  unsigned int count = rec.FieldCount();
+  for (unsigned int i = 1; i <= count; ++i)
+  {
+    if (i > 1)
+    { stream << L','; }
+
+    stream << L'"' << EscapeString(((_formatMap >> i) & 1) ? rec[i].GetFormattedString() : rec[i].GetString()) << L'"';
+  }
+  stream << L']';
+}
+
+size_t FindEndQuote(const wstring &str, size_t pos)
+{
+  bool skipNext = false;
+  while (pos < str.size())
+  {
+    if (str[pos] == L'"' && !skipNext)
+    {
+      return pos;
+    }
+
+    skipNext = !skipNext && (str[pos] == L'\\');
+    ++pos;
+  }
+  return 0;
+}
+
+wstring RemoveEscapes(const wstring &str, size_t offset, size_t length)
+{
+  unique_ptr<wchar_t[]> result(new wchar_t[length + 1]);
+  bool nextLit = false;
+  size_t pos = 0;
+  for (size_t i = offset; i < offset + length; ++i)
+  {
+    if (nextLit || str[i] != '\\')
+    {
+      result[pos++] = str[i];
+      nextLit = false;
+    }
+    else
+    {
+      nextLit = true;
+    }
+  }
+
+  return wstring(result.get(), result.get() + pos);
+}
+
+bool TryGetFields(vector<wstring> &fields, size_t &pos, const wstring &encodedView)
+{
+  fields.clear();
+  if (pos + 1 < encodedView.size() && encodedView[pos] == '[')
+  {
+    while (encodedView[pos] != ']')
+    {
+      ++pos;
+      if (encodedView[pos] != '\"')
+      {
+        throw msi_exception(L"Invalid field found in encoded view");
+      }
+      size_t end = FindEndQuote(encodedView, pos + 1);
+      if (end == 0 || (encodedView[end + 1] != L',' && encodedView[end + 1] != L']'))
+      {
+        throw msi_exception(L"Invalid field found in encoded view");
+      }
+      fields.emplace_back(RemoveEscapes(encodedView, pos + 1, end - pos - 1));
+      pos = end + 1;
+    }
+    ++pos;
+    return true;
+  }
+  return false;
+}
+
+vector<MsiRecord> MsiViewEncoder::Decode(MsiSession &session, wstring encodedView) const
+{
+  vector<MsiRecord> result;
+  size_t pos = 0;
+  vector<wstring> fields;
+  while (TryGetFields(fields, pos, encodedView))
+  {
+    result.emplace_back(session, MsiCreateRecord(fields.size()));
+    MsiRecord &rec = result.back();
+    for (size_t i = 0; i < fields.size(); ++i)
+    {
+      rec[i + 1] = fields[i];
+    }
+  }
+  return result;
 }
