@@ -17,7 +17,7 @@
         <Directory Id="INSTALLFOLDER" Name="TextReplace.Test.Setup">
           <Component Id="Comp1">
             <File Id="testfile" Source="Testfile.txt" />
-            <tx:TextReplace Id="text1" File="[#testfile]" Match="Hello " Replace="$1$1" />
+            <tx:TextReplace Id="text1" File="[#testfile]" Match="Hello " Replace="$&amp;$&amp;" />
           </Component>
         </Directory>
 			</Directory>

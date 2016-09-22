@@ -66,6 +66,8 @@ void PerformReplace(MsiRecord &rec, MsiSession &session)
 	
 	if (!CopyFile(tempFilename.c_str(), filename.c_str(), FALSE))
 	{
+    session.LogLastDllError(__FUNCTIONW__);
+    MessageBox(NULL, L"Hello", L"Hello", 0);
 		DeleteFile(tempFilename.c_str());
 		throw msi_exception(L"Failed to write to " + filename + L". Maybe the file is locked or read-only.");
 	}
