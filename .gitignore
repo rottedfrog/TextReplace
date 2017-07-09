@@ -244,3 +244,7 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /TextReplace/Resources/TextReplace.WixLib.wixlib
+/TextReplace.Test.Setup/TextReplace.dll
+/TextReplace.Test.Setup/Product.wixpdb
+/TextReplace.Test.Setup/Product.msi
+/TextReplace.Test.Setup/cab1.cab
