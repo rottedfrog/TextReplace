@@ -22,6 +22,7 @@ To use text replace, you need to do two things:
 2. Add `TextReplace` elements to the components you want to associate the change to.
 
 The TextReplace element has 3 attributes:
+
 | Attribute | Description |
 |-|-|
 | Id | A unique name to identify the replacement |
