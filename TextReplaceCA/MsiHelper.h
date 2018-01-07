@@ -229,14 +229,14 @@ public:
 		return *this;
 	}
 
-	bool operator==(MsiViewIterator &view)
+	bool operator==(const MsiViewIterator &view) noexcept
 	{
 		return (_record.hRecord() == view._record.hRecord()) &&
 			((_viewhandle == view._viewhandle) ||
 			(_record.hRecord() == NULL));
 	}
 
-	bool operator!=(MsiViewIterator &view)
+	bool operator!=(const MsiViewIterator &view) noexcept
 	{
 		return !operator==(view);
 	}
@@ -306,7 +306,7 @@ private:
   void SerializeRecord(MsiRecord &rec, std::wstringstream &stream) const;
 public:
   template<typename Predicate> //Ideally this would be replaced by std::function<bool, const MsiRecord &> as the parameter type, once VS supports expression SFINAE
-  std::wstring MsiViewEncoder::Encode(MsiView &view, Predicate filterPredicate) const
+  std::wstring Encode(MsiView &view, Predicate filterPredicate) const
   {
     wstringstream result;
     for_each(begin(view), end(view), [&](MsiRecord &rec) { if (filterPredicate(rec)) SerializeRecord(rec, result); });
