@@ -22,12 +22,13 @@ To use text replace, you need to do two things:
 2. Add `TextReplace` elements to the components you want to associate the change to.
 
 The TextReplace element has 3 attributes:
-|Attribute|Description                              |
-|---------|-----------------------------------------|
-|Id       |A unique name to identify the replacement|
-|File     |The name of a file. This field accepts formatted values|
-|Match    |An Expression to replace with|
-|Replace  |A replacement expression. You can use captured numbered references $1..$9 for different captures from the match expression. $& is the whole matched expression.
+
+| Attribute | Description                              |
+| --------- | ---------------------------------------- |
+| Id        | A unique name to identify the replacement |
+| File      | The name of a file. This field accepts formatted values |
+| Match     | An Expression to replace with |
+| Replace   | A replacement expression. You can use captured numbered references $1..$9 for different captures from the match expression. $& is the whole matched expression. |
 
 
 #### Things to note about Match and replace:
