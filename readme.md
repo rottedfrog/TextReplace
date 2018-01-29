@@ -12,6 +12,8 @@ but this hasn't been tested. It will build in VS2015 Community. Note you will
 require both C# and C++ libraries installed in order to build it - the extension is
 written in C#, but the custom action it's built on is written in C++. It just a case of loading the solution and hitting "build".
 
+The solution will build in VS2017 Community as well, although you will need to upgrade the projects on loading for the first time.
+
 The built extension is under the TextReplace\bin folder. You only need the TextReplace.dll.
 
 ## Usage
