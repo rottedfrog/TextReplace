@@ -79,7 +79,7 @@ namespace TextReplace
             if (str.StartsWith("[@@]", System.StringComparison.Ordinal))
             { return str.Substring(4); }
             Regex r = new Regex(@"[[\]{}]");
-            return r.Replace(str, @"[\$1]");
+            return r.Replace(str, @"[\$0]");
         }
 
         private void ParseTextReplaceElement(SourceLineNumberCollection sourceLineNumbers, XmlElement parentElement, XmlElement element)
